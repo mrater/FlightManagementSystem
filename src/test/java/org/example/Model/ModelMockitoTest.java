@@ -5,6 +5,7 @@ import org.example.Datatypes.RPassenger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InOrder;
@@ -20,7 +21,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-class ModelMockitoTest {
+@Tag("model")
+@Tag("mockito")
+@Tag("fast")
+public class ModelMockitoTest {
 
     @Mock
     private OperationRegistry registry;
@@ -44,6 +48,7 @@ class ModelMockitoTest {
     }
 
     @ParameterizedTest
+    @Tag("security")
     @CsvSource({
             "user,true",
             "nouser,false"
@@ -70,6 +75,8 @@ class ModelMockitoTest {
     }
 
     @Test
+    @Tag("reservation")
+    @Tag("critical")
     void reserveFlightLogsAndReturnsTrueWhenFlightExists() {
         int flightId = 100;
         IFlight flight = mock(IFlight.class);
@@ -88,6 +95,7 @@ class ModelMockitoTest {
     }
 
     @Test
+    @Tag("reservation")
     void reserveFlightReturnsFalseWhenFlightMissing() {
         when(registry.findFlight(anyInt())).thenReturn(null);
 
@@ -99,6 +107,8 @@ class ModelMockitoTest {
     }
 
     @Test
+    @Tag("reservation")
+    @Tag("slow")
     void reserveFlightPropagatesExceptionWhenLoggingFails() {
         int flightId = 100;
         IFlight flight = mock(IFlight.class);
@@ -113,6 +123,7 @@ class ModelMockitoTest {
     }
 
     @Test
+    @Tag("search")
     void findFlightsThrowsWhenRegistryFails() {
         Connection query = new Connection(null, null, Connection.QUERY_RESERVED_ID, new Date());
         when(registry.getAllFlights()).thenThrow(new IllegalStateException("registry error"));
@@ -121,6 +132,7 @@ class ModelMockitoTest {
     }
 
     @Test
+    @Tag("search")
     void findFlightsReturnsEmptyListWhenNoFlights() {
         Connection query = new Connection(null, null, Connection.QUERY_RESERVED_ID, new Date());
         when(registry.getAllFlights()).thenReturn(Collections.emptyList());

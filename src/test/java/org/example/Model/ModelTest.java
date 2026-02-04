@@ -1,4 +1,4 @@
-package test.java.org.example.Model;
+package org.example.Model;
 
 import org.example.Datatypes.Connection;
 import org.example.Datatypes.RPassenger;
@@ -13,6 +13,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -25,6 +26,8 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("model")
+@Tag("unit")
 class ModelTest {
 
     private static OperationRegistry registry;
@@ -62,6 +65,8 @@ class ModelTest {
     }
 
     @Test
+    @Tag("reservation")
+    @Tag("critical")
     void reserveFlightShouldFailForUnknownFlight() {
         RPassenger passenger = new RPassenger("Jan", "Kowalski");
         boolean result = model.reserveFlight(999, passenger);
@@ -69,6 +74,7 @@ class ModelTest {
     }
 
     @Test
+    @Tag("reservation")
     void reserveFlightShouldFailForEmptyPassenger() {
         RPassenger passenger = new RPassenger("", "");
         boolean result = model.reserveFlight(100, passenger);
@@ -76,6 +82,7 @@ class ModelTest {
     }
 
     @ParameterizedTest
+    @Tag("reservation")
     @CsvSource({
             "100,true",
             "200,true",
@@ -88,6 +95,7 @@ class ModelTest {
     }
 
     @Test
+    @Tag("search")
     void findFlightsShouldReturnMatchingDeparture() {
         Date now = new Date();
         Connection query = new Connection(null, null, Connection.QUERY_RESERVED_ID, now);
@@ -99,12 +107,14 @@ class ModelTest {
     }
 
     @Test
+    @Tag("security")
     void getUserTokenShouldReturnNullForInvalidCredentials() {
         assertNull(model.getUserToken("", ""));
         assertNull(model.getUserToken(null, "pass"));
     }
 
     @ParameterizedTest
+    @Tag("security")
     @NullAndEmptySource
     @MethodSource("invalidCredentials")
     void getUserTokenParameterizedInvalidCredentials(String login, String password) {

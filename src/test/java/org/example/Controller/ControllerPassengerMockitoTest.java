@@ -19,7 +19,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-class ControllerPassengerMockitoTest {
+@Tag("controller")
+@Tag("mockito")
+@Tag("fast")
+public class ControllerPassengerMockitoTest {
 
     @Mock
     private IModel model;
@@ -40,6 +43,7 @@ class ControllerPassengerMockitoTest {
     }
 
     @Test
+    @Tag("search")
     void searchConnectionDoesNotCallModelForInvalidQuery() {
         Connection invalid = new Connection("A", "B", "NOT_QUERY", new Date());
 
@@ -50,6 +54,8 @@ class ControllerPassengerMockitoTest {
     }
 
     @Test
+    @Tag("search")
+    @Tag("critical")
     void searchConnectionDelegatesToModelForValidQuery() {
         Connection query = new Connection("A", "B", Connection.QUERY_RESERVED_ID, new Date());
         List<Connection> expected = Collections.singletonList(query);
@@ -63,6 +69,8 @@ class ControllerPassengerMockitoTest {
     }
 
     @ParameterizedTest
+    @Tag("reservation")
+    @Tag("validation")
     @ValueSource(strings = {"", " ", "Jan"})
     void commitReservationValidatesFirstNameAndUsesModel(String firstName) {
         when(model.reserveFlight(anyInt(), any(RPassenger.class))).thenReturn(true);
@@ -79,6 +87,7 @@ class ControllerPassengerMockitoTest {
     }
 
     @Test
+    @Tag("reservation")
     void commitReservationPassesCorrectPassengerToModel() {
         when(model.reserveFlight(anyInt(), any(RPassenger.class))).thenReturn(true);
 
