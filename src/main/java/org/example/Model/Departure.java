@@ -9,21 +9,22 @@ public class Departure implements IFlight {
     int runwayNumber;
     String origin;
     String destination;
+    String status;
 
     //TODO implement these methods
     @Override
     public String getFlightNumber() {
-        return "";
+        return flightNumber;
     }
 
     @Override
     public Date getTime() {
-        return null;
+        return departureTime;
     }
 
     @Override
     public String getStatus() {
-        return "";
+        return status;
     }
 
     public String getDestination() {
@@ -36,6 +37,6 @@ public class Departure implements IFlight {
 
     @Override
     public void setRunway() {
-
+        // no-op default implementation for now
     }
 }

@@ -5,48 +5,99 @@ import org.example.Datatypes.RPassenger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-public class Model implements IModel{
+public class Model implements IModel {
 
-    List<IFlight> flights;
+    private final OperationRegistry registry;
+    private final IDAO dao;
 
-    public List<IFlight> getDeparturesByQuery(String sql_query){
-        return List.of();
+    public Model() {
+        this(new OperationRegistry(), new DAO());
+    }
+
+    public Model(OperationRegistry registry, IDAO dao) {
+        this.registry = registry;
+        this.dao = dao;
     }
 
     @Override
     public String getUserToken(String login, String password) {
-        return "";
-    }
-
-    List<IFlight> queryFlightsFrom(Connection query){
-        List<IFlight> result = new ArrayList<>();
-        for (IFlight flight : flights){
-            Departure departure = (Departure) flight;
-            if (query.date() != flight.getTime()) continue;
-            else if (!Objects.equals(query.destId(), departure.getOrigin())) continue;
-            
-
+        if (login == null || password == null || login.isEmpty() || password.isEmpty()) {
+            return null;
         }
+
+        Employee[] users = dao.getUsers(login);
+        if (users == null || users.length == 0) {
+            return null;
+        }
+
+        String token = login + "-token";
+        dao.saveEventLogEntry(login, "User authenticated");
+        return token;
     }
 
     @Override
     public List<Connection> findFlights(Connection query) {
-        // return IFlights list that is queried
-        // via SQL with dates from this query and appropriate dest and origin
-        List<Departure> flightsByQuery =
-        List<Connection> result = new ArrayList<>();
-        for (Departure flight : flightsByQuery){
-            Connection connection = new Connection(flight.getFlightNumber(),
-                    flight.getOrigin(), flight.getDestination(),
-                    flight.getTime());
+        if (query == null) {
+            return new ArrayList<>();
         }
 
+        List<Connection> result = new ArrayList<>();
+        for (IFlight flight : registry.getAllFlights()) {
+            if (flight instanceof Departure) {
+                Departure departure = (Departure) flight;
+
+                boolean originMatches = query.fromId() == null
+                        || query.fromId().isEmpty()
+                        || query.fromId().equals(departure.getOrigin());
+                boolean destMatches = query.destId() == null
+                        || query.destId().isEmpty()
+                        || query.destId().equals(departure.getDestination());
+                boolean dateMatches = query.date() == null
+                        || query.date().equals(departure.getTime());
+
+                if (originMatches && destMatches && dateMatches) {
+                    result.add(new Connection(
+                            departure.getOrigin(),
+                            departure.getDestination(),
+                            departure.getFlightNumber(),
+                            departure.getTime()));
+                }
+            } else if (flight instanceof Arrival) {
+                Arrival arrival = (Arrival) flight;
+
+                boolean originMatches = query.fromId() == null
+                        || query.fromId().isEmpty()
+                        || query.fromId().equals(arrival.getOrigin());
+                boolean dateMatches = query.date() == null
+                        || query.date().equals(arrival.getTime());
+
+                if (originMatches && dateMatches) {
+                    result.add(new Connection(
+                            arrival.getOrigin(),
+                            query.destId(),
+                            arrival.getFlightNumber(),
+                            arrival.getTime()));
+                }
+            }
+        }
+
+        return result;
     }
 
     @Override
     public boolean reserveFlight(int flightId, RPassenger user) {
-        return false;
+        if (user == null || user.firstName().isEmpty() || user.lastName().isEmpty()) {
+            return false;
+        }
+
+        IFlight flight = registry.findFlight(flightId);
+        if (flight == null) {
+            return false;
+        }
+
+        String userName = user.firstName() + " " + user.lastName();
+        dao.saveEventLogEntry(userName, "Reserved flight " + flight.getFlightNumber());
+        return true;
     }
 }
