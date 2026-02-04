@@ -10,6 +10,10 @@ import java.util.Objects;
 public class ControllerPassenger implements IControllerPassenger{
     IModel model;
 
+    public ControllerPassenger(IModel model) {
+        this.model = model;
+    }
+
     @Override
     public List<Connection> searchConnection(Connection query) {
         // ignore invalid requests
